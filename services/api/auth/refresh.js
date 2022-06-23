@@ -7,6 +7,10 @@ export const refresh = () => {
       // eslint-disable-next-line no-undef
       fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/refresh`, {
         method: "POST",
+        mode: "cors",
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+        },
       })
         .then((res) => {
           if (!res.ok) {
