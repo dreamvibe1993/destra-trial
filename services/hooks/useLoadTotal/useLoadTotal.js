@@ -15,8 +15,8 @@ export const useLoadTotal = () => {
     fetchContent
       .then(async (res) => {
         if (!res.ok) {
-          await refresh().then(res => res);
-          res = fetchContent;
+          await refresh()
+          res = fetchContent.then(res => res);
         }
         return res.json();
       })

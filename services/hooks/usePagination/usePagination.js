@@ -20,7 +20,10 @@ export const usePagination = ({ limit }) => {
     let start = presentPage;
     let end = presentPage + limit;
     let overflow = false;
-    if (start > countOfPagesList.length - limit || end > countOfPagesList.length) {
+    if (
+      start > countOfPagesList.length - limit ||
+      end > countOfPagesList.length
+    ) {
       start = countOfPagesList.length - limit;
       end = countOfPagesList.length;
       overflow = true;
@@ -43,6 +46,7 @@ export const usePagination = ({ limit }) => {
       return;
     }
     if (pp > currentTen[currentTen.length - 1]) {
+      setCurrentTen(countOfPagesList.slice(start + 1, end + 1));
       setPresentPage(pp);
       return;
     }
@@ -57,16 +61,21 @@ export const usePagination = ({ limit }) => {
   const getPreviousPage = React.useCallback(() => {
     if (presentPage === 1) return;
     const { start, end, overflow } = checkOverflow();
+    let pp = presentPage - 1;
     if (overflow) {
       setCurrentTen(countOfPagesList.slice(start, end));
     } else {
-      setCurrentTen(countOfPagesList.slice(presentPage - 1, presentPage + 9));
+      if (!currentTen.includes(pp)) {
+        setCurrentTen(
+          countOfPagesList.slice(presentPage - 1, presentPage + (limit - 1))
+        );
+      }
     }
-    setPresentPage((prev) => restrict(prev - 1));
+    setPresentPage(pp);
   }, [presentPage, countOfPagesList, restrict]);
 
   const getFirstPage = React.useCallback(() => {
-    setCurrentTen(countOfPagesList.slice(1, 11));
+    setCurrentTen(countOfPagesList.slice(1, limit + 1));
     setPresentPage(1);
   }, [countOfPagesList, restrict]);
 
@@ -111,7 +120,7 @@ export const usePagination = ({ limit }) => {
     let end = presentPage;
     if (start < 1 || end < 1) {
       start = 1;
-      end = 11;
+      end = limit + 1;
     }
     setCurrentTen(countOfPagesList.slice(start, end));
     setPresentPage(start);
@@ -119,6 +128,7 @@ export const usePagination = ({ limit }) => {
 
   React.useEffect(() => {
     if (total?.count && limit) {
+      console.log(limit);
       const countList = [];
       const countOfPagesList = [];
       for (let count = 0; count < total.count; count++) {

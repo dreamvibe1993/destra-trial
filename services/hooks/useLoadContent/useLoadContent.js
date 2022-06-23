@@ -23,7 +23,7 @@ export const useLoadContent = ({ page, limit }) => {
       .then(async (res) => {
         if (!res.ok) {
           await refresh();
-          res = fetchContent.then(res => res);
+          res = fetchContent.then((res) => res);
         }
         return res.json();
       })
@@ -34,7 +34,7 @@ export const useLoadContent = ({ page, limit }) => {
         console.error("ERROR: ", e);
         setError(true);
       });
-  }, []);
+  }, [page, limit]);
 
   return { data: data, isLoading: !data && !isError, isError: isError };
 };

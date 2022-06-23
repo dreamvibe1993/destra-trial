@@ -54,7 +54,7 @@ function Home() {
     isLoading,
     isError,
   } = useLoadContent({
-    page: page,
+    page: presentPage,
     limit: limit,
   });
 
@@ -62,6 +62,11 @@ function Home() {
     logout();
     router.reload();
   };
+
+  const changePagesLimit = (e) => {
+    e.preventDefault()
+    setLimit(Number(e.target.value))
+  }
 
   if (isLoading)
     return (
@@ -120,10 +125,10 @@ function Home() {
                 placeholder="Select option"
                 w={["100%", "auto"]}
                 defaultValue={limit}
+                onChange={changePagesLimit}
               >
                 <option value="10">10 записей</option>
-                <option value="20">20 записей</option>
-                <option value="30">30 записей</option>
+                <option value="5">5 записей</option>
               </Select>
             </Flex>
             <Flex align={"center"}>
