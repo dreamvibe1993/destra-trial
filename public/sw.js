@@ -24,6 +24,10 @@ self.addEventListener("message", function (event) {
     tokens = { access_token: null, refresh_token: null };
     console.log("[SW] tokens cleared!");
   }
+  if (event.data && event.data.type == "REFRESH_TOKENS") {
+    tokens = { ...tokens, ...event.data.tokens };
+    console.log("[SW] tokens refreshed!");
+  }
 });
 
 // Helper function to add the auth header if the oubound request matches the whitelists

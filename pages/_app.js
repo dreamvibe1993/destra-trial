@@ -5,6 +5,7 @@ import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }) {
   registerServiceWorker();
+  
   return (
     <ChakraProvider>
       <Component {...pageProps} />

@@ -1,29 +1,22 @@
 import React from "react";
 import { useAppContext } from "../../../utils/contexts/app-context";
 import { refresh } from "../../api/auth/refresh";
-import { serviceWorkerDispatch } from "../../serviceWorker/swDispatch";
 
-export const useLoadContent = ({ page, limit }) => {
+export const useLoadTotal = () => {
   const [data, setData] = React.useState();
   const [isError, setError] = React.useState(null);
   //   const { refreshTokens } = useAppContext();
 
   React.useEffect(() => {
-    if (!page || !limit) {
-      const errMessage = "No page or no limit in useLoadContent.js!";
-      console.error(errMessage);
-      setError(true);
-      return;
-    }
     const fetchContent = fetch(
       // eslint-disable-next-line no-undef
-      `${process.env.NEXT_PUBLIC_API_ADDRESS}/content?page=${page}&limit=${limit}`
+      `${process.env.NEXT_PUBLIC_API_ADDRESS}/content/total`
     );
     fetchContent
       .then(async (res) => {
         if (!res.ok) {
-          await refresh();
-          res = fetchContent.then(res => res);
+          await refresh().then(res => res);
+          res = fetchContent;
         }
         return res.json();
       })
@@ -31,7 +24,7 @@ export const useLoadContent = ({ page, limit }) => {
         setData(res.result);
       })
       .catch((e) => {
-        console.error("ERROR: ", e);
+        console.error(e);
         setError(true);
       });
   }, []);

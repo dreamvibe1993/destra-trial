@@ -1,24 +1,30 @@
 import React from "react";
+import { refresh } from "../../api/auth/refresh";
 import { serviceWorkerDispatch } from "../../serviceWorker/swDispatch";
 
 export const useAuth = () => {
   const [isUserAuth, setUserAuth] = React.useState(0);
 
-  React.useEffect(() => {
+  const refreshTokens = () =>
     serviceWorkerDispatch(() => {
       setUserAuth(0);
-      // eslint-disable-next-line no-undef
-      fetch(`${process.env.NEXT_PUBLIC_API_ADDRESS}/content/total`).then(
-        (res) => {
-          if (!res.ok || res.status === 401) return setUserAuth(-1);
-          else setUserAuth(1);
-        }
-      );
+      refresh()
+        .then(() => {
+          setUserAuth(1);
+        })
+        .catch((e) => {
+          console.error(e);
+          setUserAuth(-1);
+        });
     });
+
+  React.useEffect(() => {
+    refreshTokens();
   }, []);
 
   return {
     isUserAuth,
-    setUserAuth
+    setUserAuth,
+    refreshTokens,
   };
 };

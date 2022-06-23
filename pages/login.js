@@ -22,6 +22,7 @@ import { loginSchema } from "../models/yup/yup-login-schema";
 import { login } from "../services/api/auth/login";
 import { useAuth } from "../services/hooks/useAuth/useAuth";
 import { logout } from "../services/api/auth/logout";
+import { ErrorAlert } from "../components/error-alert/error-alert";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -114,15 +115,7 @@ export default function LoginPage() {
                 />
                 <FormErrorMessage>{formik.errors.password}</FormErrorMessage>
               </FormControl>
-              {errorMessage && (
-                <Alert status="error">
-                  <AlertIcon />
-                  <Flex direction={"column"}>
-                    <AlertTitle>Oops.</AlertTitle>
-                    <AlertDescription>{errorMessage}</AlertDescription>
-                  </Flex>
-                </Alert>
-              )}
+              {errorMessage && <ErrorAlert errorMessage={errorMessage} />}
               <Stack
                 direction={{ base: "column", sm: "row" }}
                 align={"start"}
