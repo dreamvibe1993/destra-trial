@@ -159,11 +159,6 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     setPresentPage(pp);
   }, [total, buttonsLimit, itemsLimit]);
 
-  React.useEffect(() => {
-    console.log("batch: ", currentBatch);
-    console.log("countOfPages: ", countOfPagesList);
-  }, [currentBatch, countOfPagesList]);
-
   return {
     total,
     presentPage,
