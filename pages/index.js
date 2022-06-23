@@ -21,8 +21,10 @@ import { useLoadContent } from "../services/hooks/useLoadContent/useLoadContent"
 import { ErrorAlert } from "../components/error-alert/error-alert";
 import { usePagination } from "../services/hooks/usePagination/usePagination";
 import { isMobile } from "../utils/common/detect-device";
+import { registerServiceWorker } from "../services/serviceWorker/register";
 
 export default function HomeProtected() {
+  registerServiceWorker();
   return (
     <Protect>
       <Home />
