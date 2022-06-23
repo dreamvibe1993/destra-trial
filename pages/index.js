@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Box,
   Button,
@@ -8,19 +9,18 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import { useRouter } from "next/router";
-import React from "react";
-import { logout } from "../services/api/auth/logout";
-import { Protect } from "../services/hocs/Protect/Protect";
-import { useLoadContent } from "../services/hooks/useLoadContent/useLoadContent";
 import {
   BiChevronsLeft,
   BiChevronsRight,
   BiChevronLeft,
   BiChevronRight,
 } from "react-icons/bi";
+
+import { Protect } from "../services/hocs/Protect/Protect";
+import { useLoadContent } from "../services/hooks/useLoadContent/useLoadContent";
 import { ErrorAlert } from "../components/error-alert/error-alert";
 import { usePagination } from "../services/hooks/usePagination/usePagination";
+import { isMobile } from "../utils/common/detect-device";
 
 export default function HomeProtected() {
   return (
@@ -31,14 +31,10 @@ export default function HomeProtected() {
 }
 
 function Home() {
-  const router = useRouter();
-  const [page, setPage] = React.useState(1);
-  const [limit, setLimit] = React.useState(10);
-  const [buttons, setButtons] = React.useState([]);
-
+  const [buttonsLimit, setButtonsLimit] = React.useState(10);
   const {
     presentPage,
-    currentTen,
+    currentBatch,
     getFirstPage,
     getLastPage,
     getNextPage,
@@ -47,7 +43,7 @@ function Home() {
     getPrevTenPages,
     getPage,
     total,
-  } = usePagination({ limit });
+  } = usePagination({ limit: buttonsLimit });
 
   const {
     data: content,
@@ -55,18 +51,17 @@ function Home() {
     isError,
   } = useLoadContent({
     page: presentPage,
-    limit: limit,
+    limit: buttonsLimit,
   });
 
-  const logMeOut = () => {
-    logout();
-    router.reload();
+  const changePagesLimit = (e) => {
+    e.preventDefault();
+    setButtonsLimit(Number(e.target.value));
   };
 
-  const changePagesLimit = (e) => {
-    e.preventDefault()
-    setLimit(Number(e.target.value))
-  }
+  React.useEffect(() => {
+    if (isMobile()) setButtonsLimit(5);
+  }, []);
 
   if (isLoading)
     return (
@@ -117,23 +112,23 @@ function Home() {
               <Spinner size={"xs"} />
             )}
 
-            <Flex align={"center"}>
+            <Flex align={"center"} mb={[2, 0]} w={["100%", "auto"]} justify="space-between">
               <Text noOfLines={1} mr={2}>
                 Показывать на странице по
               </Text>
               <Select
                 placeholder="Select option"
-                w={["100%", "auto"]}
-                defaultValue={limit}
+                w={["90%", "auto"]}
+                defaultValue={buttonsLimit}
                 onChange={changePagesLimit}
               >
                 <option value="10">10 записей</option>
                 <option value="5">5 записей</option>
               </Select>
             </Flex>
-            <Flex align={"center"}>
+            <Flex align={"center"} w={["100%", "auto"]} justify="space-between">
               <Text mr={2}>Сортировать</Text>
-              <Select placeholder="Select option" w={["100%", "auto"]}>
+              <Select placeholder="Select option" w={["50%", "auto"]}>
                 <option value="option1">Сначала новые</option>
                 <option value="option2">Сначала старые</option>
               </Select>
@@ -145,8 +140,10 @@ function Home() {
             w="100%"
             justify="space-between"
           >
-            <Flex direction={["column", "row"]} columnGap={1} rowGap={1}>
-              <Button onClick={getFirstPage}>Первая</Button>
+            <Flex columnGap={1} rowGap={1}>
+              <Button onClick={getFirstPage} flex={1}>
+                Первая
+              </Button>
               <Button onClick={getPrevTenPages}>
                 <BiChevronsLeft />
               </Button>
@@ -154,33 +151,40 @@ function Home() {
                 <BiChevronLeft />
               </Button>
             </Flex>
+
             <Flex
               overflowX="auto"
               my={[5, 0]}
-              mx={[0, 5]}
+              mx={["auto", 1]}
+              justify={["center", null]}
+              w="100%"
               columnGap={1}
               rowGap={1}
             >
-              {currentTen.map((i) => {
+              {currentBatch.map((i) => {
                 return (
                   <Button
                     key={Date.now().toString() + i}
                     isActive={presentPage === i}
                     onClick={() => getPage(i)}
                   >
-                    {i}
+                    <Text fontSize={`${fontResizer(i)}%`}>{i}</Text>
                   </Button>
                 );
               })}
             </Flex>
-            <Flex direction={["column", "row"]} columnGap={1} rowGap={1}>
-              <Button onClick={getNextPage}>
-                <BiChevronRight />
+            <Flex columnGap={1} rowGap={1} direction={["row-reverse", "row"]}>
+              <Flex direction={["row-reverse", "row"]} columnGap={1} rowGap={1}>
+                <Button onClick={getNextPage}>
+                  <BiChevronRight />
+                </Button>
+                <Button onClick={getNextTenPages}>
+                  <BiChevronsRight />
+                </Button>
+              </Flex>
+              <Button onClick={getLastPage} flex={1}>
+                Последняя
               </Button>
-              <Button onClick={getNextTenPages}>
-                <BiChevronsRight />
-              </Button>
-              <Button onClick={getLastPage}>Последняя</Button>
             </Flex>
           </Flex>
         </VStack>
@@ -188,5 +192,12 @@ function Home() {
     </Box>
   );
 }
+
+const fontResizer = (i) => {
+  if (typeof i !== "number") return 100;
+  const size = 100 / (i.toString().length / 4);
+  if (size > 100) return 100;
+  return size;
+};
 
 /* <Button onClick={logMeOut}>LOGOUT</Button> */

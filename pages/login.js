@@ -1,9 +1,5 @@
 import React from "react";
 import {
-  Alert,
-  AlertDescription,
-  AlertIcon,
-  AlertTitle,
   Box,
   Button,
   Flex,
@@ -20,13 +16,12 @@ import { useRouter } from "next/router";
 
 import { loginSchema } from "../models/yup/yup-login-schema";
 import { login } from "../services/api/auth/login";
-import { useAuth } from "../services/hooks/useAuth/useAuth";
-import { logout } from "../services/api/auth/logout";
 import { ErrorAlert } from "../components/error-alert/error-alert";
+import { useAppContext } from "../utils/contexts/app-context";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { isUserAuth } = useAuth();
+  const { isUserAuth, setUserAuth } = useAppContext();
 
   const [errorMessage, setErrorMessage] = React.useState(null);
 
@@ -37,12 +32,14 @@ export default function LoginPage() {
     },
     validationSchema: loginSchema,
     onSubmit: (values) => {
+      setUserAuth(0);
       login(values)
         .then(() => {
-          router.push("/");
+          setUserAuth(1);
         })
         .catch((e) => {
           console.error(e.message);
+          setUserAuth(-1);
           if (e.status === 401) {
             setErrorMessage(
               `Sorry, but seems the credentials you typed were invalid.`
@@ -54,34 +51,29 @@ export default function LoginPage() {
     },
   });
 
-  const logMeOut = () => {
-    logout();
-    router.reload();
-  };
-
   if (isUserAuth === 0)
     return (
-      <Flex minH={"100vh"} align={"center"} justify={"center"}>
+      <Flex minH={"calc(100vh - 90px)"} align={"center"} justify={"center"}>
         <Spinner />
       </Flex>
     );
 
   if (isUserAuth === 1)
     return (
-      <Flex minH={"100vh"} align={"center"} justify={"center"}>
+      <Flex minH={"calc(100vh - 90px)"} align={"center"} justify={"center"}>
         <Box p={8}>
           <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
             <Heading fontSize={"4xl"}>Hello there! 👏</Heading>
           </Stack>
           <Stack spacing={4}>
-            <Button onClick={logMeOut}>Sign out</Button>
+            <Button onClick={() => router.push("/")}>To content!</Button>
           </Stack>
         </Box>
       </Flex>
     );
 
   return (
-    <Flex minH={"100vh"} align={"center"} justify={"center"}>
+    <Flex minH={"calc(100vh - 90px)"} align={"center"} justify={"center"}>
       <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
         <Stack align={"center"}>
           <Heading fontSize={"4xl"}>Sign in to your account 👮</Heading>

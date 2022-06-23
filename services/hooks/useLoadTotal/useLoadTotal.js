@@ -1,11 +1,10 @@
 import React from "react";
 import { useAppContext } from "../../../utils/contexts/app-context";
-import { refresh } from "../../api/auth/refresh";
 
 export const useLoadTotal = () => {
   const [data, setData] = React.useState();
   const [isError, setError] = React.useState(null);
-  //   const { refreshTokens } = useAppContext();
+  const { setUserAuth } = useAppContext();
 
   React.useEffect(() => {
     const fetchContent = fetch(
@@ -15,18 +14,19 @@ export const useLoadTotal = () => {
     fetchContent
       .then(async (res) => {
         if (!res.ok) {
-          await refresh()
-          res = fetchContent.then(res => res);
+          setUserAuth(-1);
+          return;
         }
         return res.json();
       })
       .then((res) => {
-        setData(res.result);
+        setData(res?.result);
       })
       .catch((e) => {
         console.error(e);
         setError(true);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { data: data, isLoading: !data && !isError, isError: isError };
