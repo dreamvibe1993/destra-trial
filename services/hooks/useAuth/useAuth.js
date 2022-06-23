@@ -25,6 +25,5 @@ export const useAuth = () => {
   return {
     isUserAuth,
     setUserAuth,
-    refreshTokens,
   };
 };
