@@ -21,10 +21,8 @@ import { useLoadContent } from "../services/hooks/useLoadContent/useLoadContent"
 import { ErrorAlert } from "../components/error-alert/error-alert";
 import { usePagination } from "../services/hooks/usePagination/usePagination";
 import { isMobile } from "../utils/common/detect-device";
-import { registerServiceWorker } from "../services/serviceWorker/register";
 
 export default function HomeProtected() {
-  registerServiceWorker();
   return (
     <Protect>
       <Home />
@@ -88,11 +86,11 @@ function Home() {
       <Box maxH={"350px"} overflowY="auto" p={3} border="1px">
         <Flex wrap="wrap" rowGap={3} columnGap={3}>
           {content &&
-            content.map((item, i) => {
+            content.map((item) => {
               return (
                 <Box key={item._id} p={3} border={"1px"} w={"250px"}>
                   <Text color="blue.700" mb={3}>
-                    {item.name} -- {i}
+                    {item.name}
                   </Text>
                   <Text>{item.category}</Text>
                 </Box>

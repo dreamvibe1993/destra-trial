@@ -1,5 +1,5 @@
 export const registerServiceWorker = () => {
-  return new Promise((res, rej) => {
+  window.addEventListener("load", () => {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("/sw.js").then(
         function (registration) {
@@ -11,10 +11,8 @@ export const registerServiceWorker = () => {
             // messages from service worker.
             console.log("e.data", e.data);
           };
-          res();
         },
         function (err) {
-          rej(err);
           console.log("Service Worker registration failed: ", err);
         }
       );
