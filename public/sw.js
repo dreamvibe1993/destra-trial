@@ -21,21 +21,21 @@ self.addEventListener("message", function (event) {
     console.log("[SW] tokens set!");
   }
   if (event.data && event.data.type == "CLEAR_TOKENS") {
-    tokens = {};
+    tokens = { access_token: null, refresh_token: null };
     console.log("[SW] tokens cleared!");
   }
 });
 
 // Helper function to add the auth header if the oubound request matches the whitelists
 const addAuthHeader = function (event) {
-    // Headers from orig request
+  // Headers from orig request
   const modifiedHeaders = new Headers(event.request.headers);
   if (tokens) {
     // Setting tokens headers
     modifiedHeaders.append("x-refresh-token", tokens.refresh_token);
     modifiedHeaders.append("x-access-token", tokens.access_token);
   }
-  // Multiplying req headers old with new 
+  // Multiplying req headers old with new
   const authReq = new Request(event.request, {
     headers: modifiedHeaders,
   });
