@@ -12,11 +12,8 @@ import {
   FormLabel,
   Heading,
   Input,
-  Link,
   Spinner,
   Stack,
-  Text,
-  VStack,
 } from "@chakra-ui/react";
 import { useFormik } from "formik";
 import { useRouter } from "next/router";
@@ -24,6 +21,7 @@ import { useRouter } from "next/router";
 import { loginSchema } from "../models/yup/yup-login-schema";
 import { login } from "../services/api/auth/login";
 import { useAuth } from "../services/hooks/useAuth/useAuth";
+import { logout } from "../services/api/auth/logout";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -38,7 +36,6 @@ export default function LoginPage() {
     },
     validationSchema: loginSchema,
     onSubmit: (values) => {
-      console.log("e");
       login(values)
         .then(() => {
           router.push("/");
@@ -56,6 +53,11 @@ export default function LoginPage() {
     },
   });
 
+  const logMeOut = () => {
+    logout();
+    router.reload();
+  };
+
   if (isUserAuth === 0)
     return (
       <Flex minH={"100vh"} align={"center"} justify={"center"}>
@@ -63,7 +65,19 @@ export default function LoginPage() {
       </Flex>
     );
 
-  if (isUserAuth === 1) return <div>user authenticated!</div>;
+  if (isUserAuth === 1)
+    return (
+      <Flex minH={"100vh"} align={"center"} justify={"center"}>
+        <Box p={8}>
+          <Stack spacing={8} mx={"auto"} maxW={"lg"} py={12} px={6}>
+            <Heading fontSize={"4xl"}>Hello there! 👏</Heading>
+          </Stack>
+          <Stack spacing={4}>
+            <Button onClick={logMeOut}>Sign out</Button>
+          </Stack>
+        </Box>
+      </Flex>
+    );
 
   return (
     <Flex minH={"100vh"} align={"center"} justify={"center"}>
@@ -109,12 +123,12 @@ export default function LoginPage() {
                   </Flex>
                 </Alert>
               )}
-                <Stack
-                  direction={{ base: "column", sm: "row" }}
-                  align={"start"}
-                  justify={"space-between"}
-                ></Stack>
-                <Button type="submit">Sign in</Button>
+              <Stack
+                direction={{ base: "column", sm: "row" }}
+                align={"start"}
+                justify={"space-between"}
+              ></Stack>
+              <Button type="submit">Sign in</Button>
             </Stack>
           </Box>
         </form>
