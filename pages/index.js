@@ -32,6 +32,7 @@ export default function HomeProtected() {
 
 function Home() {
   const [buttonsLimit, setButtonsLimit] = React.useState(10);
+  const [itemsLimit, setItemsLimit] = React.useState(8);
   const {
     presentPage,
     currentBatch,
@@ -43,7 +44,7 @@ function Home() {
     getPrevTenPages,
     getPage,
     total,
-  } = usePagination({ limit: buttonsLimit });
+  } = usePagination({ buttonsLimit, itemsLimit });
 
   const {
     data: content,
@@ -51,12 +52,12 @@ function Home() {
     isError,
   } = useLoadContent({
     page: presentPage,
-    limit: buttonsLimit,
+    limit: itemsLimit,
   });
 
   const changePagesLimit = (e) => {
     e.preventDefault();
-    setButtonsLimit(Number(e.target.value));
+    setItemsLimit(Number(e.target.value));
   };
 
   React.useEffect(() => {
@@ -85,11 +86,11 @@ function Home() {
       <Box maxH={"350px"} overflowY="auto" p={3} border="1px">
         <Flex wrap="wrap" rowGap={3} columnGap={3}>
           {content &&
-            content.map((item) => {
+            content.map((item, i) => {
               return (
                 <Box key={item._id} p={3} border={"1px"} w={"250px"}>
                   <Text color="blue.700" mb={3}>
-                    {item.name}
+                    {item.name} -- {i}
                   </Text>
                   <Text>{item.category}</Text>
                 </Box>
@@ -119,10 +120,11 @@ function Home() {
               <Select
                 placeholder="Select option"
                 w={["90%", "auto"]}
-                defaultValue={buttonsLimit}
+                defaultValue={itemsLimit}
                 onChange={changePagesLimit}
               >
                 <option value="10">10 записей</option>
+                <option value="8">8 записей</option>
                 <option value="5">5 записей</option>
               </Select>
             </Flex>

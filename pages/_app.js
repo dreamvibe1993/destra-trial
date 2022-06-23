@@ -6,11 +6,6 @@ import { useAuth } from "../services/hooks/useAuth/useAuth";
 import { AppContext } from "../utils/contexts/app-context";
 import { Navbar } from "../components/navbar/navbar";
 
-/* 
-  TODO:
-  * items limit discrepancy
-*/
-
 function MyApp({ Component, pageProps }) {
   registerServiceWorker();
   const authStatus = useAuth();
