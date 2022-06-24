@@ -9,12 +9,6 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react";
-import {
-  BiChevronsLeft,
-  BiChevronsRight,
-  BiChevronLeft,
-  BiChevronRight,
-} from "react-icons/bi";
 
 import { Protect } from "../services/hocs/Protect/Protect";
 import { useLoadContent } from "../services/hooks/useLoadContent/useLoadContent";
@@ -22,6 +16,9 @@ import { ErrorAlert } from "../components/error-alert/error-alert";
 import { usePagination } from "../services/hooks/usePagination/usePagination";
 import { isMobile } from "../utils/common/detect-device";
 import { useLoadTotal } from "../services/hooks/useLoadTotal/useLoadTotal";
+import { ContentControlToolbar } from "../components/content-control-toolbar/content-control-toolbar";
+import { Paginator } from "../components/paginator/paginator";
+import { ItemBox } from "../components/item-box/item-box";
 
 export default function HomeProtected() {
   return (
@@ -37,25 +34,14 @@ function Home() {
 
   const { data: totalCount } = useLoadTotal();
 
-  const {
-    presentPage,
-    currentPagesArr,
-    getFirstPage,
-    getLastPage,
-    getNextPage,
-    getPreviousPage,
-    getNextTenPages,
-    getPrevTenPages,
-    getPage,
-    setTotal,
-  } = usePagination({ buttonsLimit, itemsLimit });
+  const pagination = usePagination({ buttonsLimit, itemsLimit });
 
   const {
     data: content,
     isLoading,
     isError,
   } = useLoadContent({
-    page: presentPage,
+    page: pagination.presentPage,
     limit: itemsLimit,
   });
 
@@ -69,8 +55,8 @@ function Home() {
   }, []);
 
   React.useEffect(() => {
-    if (totalCount) setTotal(totalCount.count);
-  }, [setTotal, totalCount]);
+    if (totalCount) pagination.setTotal(totalCount.count);
+  }, [pagination, totalCount]);
 
   if (isLoading)
     return (
@@ -95,124 +81,18 @@ function Home() {
         <Flex wrap="wrap" rowGap={3} columnGap={3}>
           {content &&
             content.map((item) => {
-              return (
-                <Box key={item._id} p={3} border={"1px"} w={"250px"}>
-                  <Text color="blue.700" mb={3}>
-                    {item.name}
-                  </Text>
-                  <Text>{item.category}</Text>
-                </Box>
-              );
+              return <ItemBox key={item._id} {...item} />;
             })}
         </Flex>
       </Box>
-      <form>
-        <VStack my={5}>
-          <Flex
-            align={"center"}
-            direction={["column", "row"]}
-            w="100%"
-            justify="space-between"
-            mb={5}
-          >
-            {totalCount?.count ? (
-              <Text noOfLines={1}>Найдено: {totalCount?.count}</Text>
-            ) : (
-              <Spinner size={"xs"} />
-            )}
-
-            <Flex
-              align={"center"}
-              mb={[2, 0]}
-              w={["100%", "auto"]}
-              justify="space-between"
-            >
-              <Text noOfLines={1} mr={2}>
-                Показывать на странице по
-              </Text>
-              <Select
-                placeholder="Select option"
-                w={["90%", "auto"]}
-                defaultValue={itemsLimit}
-                onChange={changePagesLimit}
-              >
-                <option value="10">10 записей</option>
-                <option value="8">8 записей</option>
-                <option value="5">5 записей</option>
-              </Select>
-            </Flex>
-            <Flex align={"center"} w={["100%", "auto"]} justify="space-between">
-              <Text mr={2}>Сортировать</Text>
-              <Select placeholder="Select option" w={["50%", "auto"]}>
-                <option value="option1">Сначала новые</option>
-                <option value="option2">Сначала старые</option>
-              </Select>
-            </Flex>
-          </Flex>
-          <Flex
-            overflowX="auto"
-            direction={["column", "row"]}
-            w="100%"
-            justify="space-between"
-          >
-            <Flex columnGap={1} rowGap={1}>
-              <Button onClick={getFirstPage} flex={1}>
-                Первая
-              </Button>
-              <Button onClick={getPrevTenPages}>
-                <BiChevronsLeft />
-              </Button>
-              <Button onClick={getPreviousPage}>
-                <BiChevronLeft />
-              </Button>
-            </Flex>
-
-            <Flex
-              overflowX="auto"
-              my={[5, 0]}
-              mx={["auto", 1]}
-              justify={["center", null]}
-              w="100%"
-              columnGap={1}
-              rowGap={1}
-            >
-              {currentPagesArr.map((i) => {
-                return (
-                  <Button
-                    key={Date.now().toString() + i}
-                    isActive={presentPage === i}
-                    onClick={() => getPage(i)}
-                  >
-                    <Text fontSize={`${fontResizer(i)}%`}>{i}</Text>
-                  </Button>
-                );
-              })}
-            </Flex>
-            <Flex columnGap={1} rowGap={1} direction={["row-reverse", "row"]}>
-              <Flex direction={["row-reverse", "row"]} columnGap={1} rowGap={1}>
-                <Button onClick={getNextPage}>
-                  <BiChevronRight />
-                </Button>
-                <Button onClick={getNextTenPages}>
-                  <BiChevronsRight />
-                </Button>
-              </Flex>
-              <Button onClick={getLastPage} flex={1}>
-                Последняя
-              </Button>
-            </Flex>
-          </Flex>
-        </VStack>
-      </form>
+      <VStack my={5}>
+        <ContentControlToolbar
+          total={totalCount}
+          itemsLimit={itemsLimit}
+          changePagesLimit={changePagesLimit}
+        />
+        <Paginator {...pagination} />
+      </VStack>
     </Box>
   );
 }
-
-const fontResizer = (i) => {
-  if (typeof i !== "number") return 100;
-  const size = 100 / (i.toString().length / 4);
-  if (size > 100) return 100;
-  return size;
-};
-
-/* <Button onClick={logMeOut}>LOGOUT</Button> */
