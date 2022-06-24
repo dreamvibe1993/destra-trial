@@ -41,6 +41,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     };
   }, [presentPage, buttonsLimit]);
 
+  // =====
   const getNextPage = React.useCallback(() => {
     const { start, end } = checkHigherBoundary();
     let pageToSwitchOn = presentPage + 1;
@@ -60,11 +61,8 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
 
   const getPreviousPage = React.useCallback(() => {
     if (presentPage === 1) return;
-
     let pageToSwitchOn = presentPage - 1;
-
     const { start, end, overflow } = checkHigherBoundary();
-
     if (!currentPagesArr.includes(pageToSwitchOn)) {
       setCurrentPagesArr(
         totalCountOfPagesArr.slice(
@@ -75,17 +73,17 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
       setPresentPage(pageToSwitchOn);
       return;
     }
-
     if (overflow) {
       // Buttons array shall remain untouched.
       setCurrentPagesArr(totalCountOfPagesArr.slice(start, end));
       setPresentPage(pageToSwitchOn);
       return;
     }
-
     setPresentPage(pageToSwitchOn);
   }, [presentPage, totalCountOfPagesArr]);
+  // =====
 
+  // =====
   const getFirstPage = React.useCallback(() => {
     setCurrentPagesArr(totalCountOfPagesArr.slice(1, buttonsLimit + 1));
     setPresentPage(1);
@@ -100,6 +98,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
       )
     );
   }, [totalCountOfPagesArr]);
+  // =====
 
   const getPage = React.useCallback(
     (pageNumber) => {
@@ -108,6 +107,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     [totalCountOfPagesArr]
   );
 
+  // ===== 
   const getNextTenPages = React.useCallback(() => {
     const { start, end } = checkHigherBoundary();
     const upperLimit = totalCountOfPagesArr.length;
@@ -131,6 +131,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     setCurrentPagesArr(totalCountOfPagesArr.slice(start, end));
     setPresentPage(start);
   }, [presentPage, totalCountOfPagesArr]);
+  // =====
 
   React.useEffect(() => {
     if (!total || !buttonsLimit || !itemsLimit) {
