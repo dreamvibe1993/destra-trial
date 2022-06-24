@@ -21,6 +21,7 @@ import { useLoadContent } from "../services/hooks/useLoadContent/useLoadContent"
 import { ErrorAlert } from "../components/error-alert/error-alert";
 import { usePagination } from "../services/hooks/usePagination/usePagination";
 import { isMobile } from "../utils/common/detect-device";
+import { useLoadTotal } from "../services/hooks/useLoadTotal/useLoadTotal";
 
 export default function HomeProtected() {
   return (
@@ -33,9 +34,12 @@ export default function HomeProtected() {
 function Home() {
   const [buttonsLimit, setButtonsLimit] = React.useState(10);
   const [itemsLimit, setItemsLimit] = React.useState(8);
+
+  const { data: totalCount } = useLoadTotal();
+
   const {
     presentPage,
-    currentBatch,
+    currentPagesArr,
     getFirstPage,
     getLastPage,
     getNextPage,
@@ -43,7 +47,7 @@ function Home() {
     getNextTenPages,
     getPrevTenPages,
     getPage,
-    total,
+    setTotal,
   } = usePagination({ buttonsLimit, itemsLimit });
 
   const {
@@ -64,6 +68,10 @@ function Home() {
     if (isMobile()) setButtonsLimit(5);
   }, []);
 
+  React.useEffect(() => {
+    if (totalCount) setTotal(totalCount.count);
+  }, [setTotal, totalCount]);
+
   if (isLoading)
     return (
       <Flex h="100vh" justify={"center"} align="center">
@@ -83,7 +91,7 @@ function Home() {
   return (
     <Box p={10}>
       <Heading mb={5}>Контент</Heading>
-      <Box maxH={"350px"} overflowY="auto" p={3} border="1px">
+      <Box h={"350px"} overflowY="auto" p={3} border="1px">
         <Flex wrap="wrap" rowGap={3} columnGap={3}>
           {content &&
             content.map((item) => {
@@ -107,13 +115,18 @@ function Home() {
             justify="space-between"
             mb={5}
           >
-            {total?.count ? (
-              <Text noOfLines={1}>Найдено: {total?.count}</Text>
+            {totalCount?.count ? (
+              <Text noOfLines={1}>Найдено: {totalCount?.count}</Text>
             ) : (
               <Spinner size={"xs"} />
             )}
 
-            <Flex align={"center"} mb={[2, 0]} w={["100%", "auto"]} justify="space-between">
+            <Flex
+              align={"center"}
+              mb={[2, 0]}
+              w={["100%", "auto"]}
+              justify="space-between"
+            >
               <Text noOfLines={1} mr={2}>
                 Показывать на странице по
               </Text>
@@ -163,7 +176,7 @@ function Home() {
               columnGap={1}
               rowGap={1}
             >
-              {currentBatch.map((i) => {
+              {currentPagesArr.map((i) => {
                 return (
                   <Button
                     key={Date.now().toString() + i}
