@@ -47,13 +47,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     } else {
       getPage(presentPage + buttonsLimit);
     }
-  }, [
-    buttonsLimit,
-    getLastPage,
-    getPage,
-    presentPage,
-    totalCountOfPagesArr.length,
-  ]);
+  }, [buttonsLimit, getLastPage, getPage, presentPage, totalCountOfPagesArr.length]);
 
   const getPrevTenPages = React.useCallback(() => {
     if (presentPage - buttonsLimit <= 1) {
@@ -64,36 +58,33 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
   }, [buttonsLimit, getFirstPage, getPage, presentPage]);
   // =====
 
+  const forward = true;
+  const backward = false;
+
   React.useEffect(() => {
     const firstPage = 1;
     const lastPage = totalCountOfPagesArr.length;
     const sliceOptionsForward = [presentPage, presentPage + buttonsLimit];
-    const sliceOptionsBackward = [
-      presentPage - buttonsLimit + 1,
-      presentPage + 1,
-    ];
+    const sliceOptionsBackward = [presentPage - buttonsLimit + 1, presentPage + 1];
     const sliceOptionsTheEnd = [lastPage - buttonsLimit, lastPage];
     const sliceOptionsTheStart = [firstPage, firstPage + buttonsLimit];
+    
     let currentSliceOptions = sliceOptionsForward;
-    if (direction === true) currentSliceOptions = sliceOptionsForward;
-    if (direction === false) currentSliceOptions = sliceOptionsBackward;
-    if (direction === true && currentPagesArr.includes(presentPage)) return;
-    if (direction === false && currentPagesArr.includes(presentPage)) return;
-    if (direction === true && currentSliceOptions[1] >= lastPage)
-      currentSliceOptions = sliceOptionsTheEnd;
-    if (direction === false && currentSliceOptions[0] <= firstPage)
-      currentSliceOptions = sliceOptionsTheStart;
-    setCurrentPagesArr(
-      totalCountOfPagesArr.slice(currentSliceOptions[0], currentSliceOptions[1])
-    );
+    
+    if (direction === forward) currentSliceOptions = sliceOptionsForward;
+    if (direction === backward) currentSliceOptions = sliceOptionsBackward;
+    if (currentPagesArr.includes(presentPage)) return;
+    if (direction === forward && currentSliceOptions[1] >= lastPage) currentSliceOptions = sliceOptionsTheEnd;
+    if (direction === backward && currentSliceOptions[0] <= firstPage) currentSliceOptions = sliceOptionsTheStart;
+
+    setCurrentPagesArr(totalCountOfPagesArr.slice(currentSliceOptions[0], currentSliceOptions[1]));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buttonsLimit, direction, presentPage, totalCountOfPagesArr, itemsLimit]);
 
   React.useEffect(() => {
     if (!total || !buttonsLimit || !itemsLimit) {
-      console.error(
-        "Not enough data in the paginator! Check total or buttonsLimit or itemsLimit!"
-      );
+      console.error("Not enough data in the paginator! Check total or buttonsLimit or itemsLimit!");
       return;
     }
     // Getting numbers of pages for loop.
@@ -112,15 +103,12 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
 
     // If we had 5 items per page and switched to ten we need to reevaluate present page number.
     const pageToSwitchOn =
-      presentPage >= countOfPagesList.length
-        ? countOfPagesList.length - buttonsLimit
-        : presentPage;
+      presentPage >= countOfPagesList.length ? countOfPagesList.length - buttonsLimit : presentPage;
 
-    setCurrentPagesArr(
-      countOfPagesList.slice(pageToSwitchOn, pageToSwitchOn + buttonsLimit)
-    );
-    
+    setCurrentPagesArr(countOfPagesList.slice(pageToSwitchOn, pageToSwitchOn + buttonsLimit));
+
     setPresentPage(pageToSwitchOn);
+    
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [total, buttonsLimit, itemsLimit]);
 
