@@ -86,7 +86,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     setCurrentPagesArr(
       totalCountOfPagesArr.slice(currentSliceOptions[0], currentSliceOptions[1])
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buttonsLimit, direction, presentPage, totalCountOfPagesArr, itemsLimit]);
 
   React.useEffect(() => {
@@ -96,21 +96,21 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
       );
       return;
     }
-    const countList = [];
+    // Getting numbers of pages for loop.
+    const countOfPages = Math.ceil(total / itemsLimit);
+
+    // We need list because it's more comfortable to operate with.
     const countOfPagesList = [];
 
-    for (let count = 0; count < total; count++) {
-      countList.push(count);
-    }
-
-    const countOfPages = Math.ceil(countList.length / itemsLimit);
-
+    // Getting total array of numbers of pages.
     for (let count = 0; count < countOfPages; count++) {
       countOfPagesList.push(count);
     }
 
+    // Setting total count of pages array in hook's state.
     setTotalCountOfPagesArr(countOfPagesList);
 
+    // If we had 5 items per page and switched to ten we need to reevaluate present page number.
     const pageToSwitchOn =
       presentPage >= countOfPagesList.length
         ? countOfPagesList.length - buttonsLimit
@@ -119,8 +119,9 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     setCurrentPagesArr(
       countOfPagesList.slice(pageToSwitchOn, pageToSwitchOn + buttonsLimit)
     );
+    
     setPresentPage(pageToSwitchOn);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [total, buttonsLimit, itemsLimit]);
 
   return {
