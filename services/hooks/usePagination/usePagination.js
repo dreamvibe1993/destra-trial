@@ -1,48 +1,49 @@
 import React from "react";
 
 export const usePagination = ({ buttonsLimit, itemsLimit }) => {
+  const forward = true;
+  const backward = false;
+
   const [presentPage, setPresentPage] = React.useState(1);
   const [totalCountOfPagesArr, setTotalCountOfPagesArr] = React.useState([]);
   const [currentPagesArr, setCurrentPagesArr] = React.useState([]);
   const [total, setTotal] = React.useState(0);
-  const [direction, setDirection] = React.useState(true);
+  const [direction, setDirection] = React.useState(forward);
 
-  // =====
   const getNextPage = React.useCallback(() => {
     let pageToSwitchOn = presentPage + 1;
     getPage(pageToSwitchOn);
-    setDirection(true);
+    setDirection(forward);
   }, [getPage, presentPage]);
 
   const getPreviousPage = React.useCallback(() => {
     let pageToSwitchOn = presentPage - 1;
     getPage(pageToSwitchOn);
-    setDirection(false);
+    setDirection(backward);
   }, [getPage, presentPage]);
-  // =====
 
-  // =====
   const getFirstPage = React.useCallback(() => {
     getPage(1);
   }, [getPage]);
 
   const getLastPage = React.useCallback(() => {
-    getPage(totalCountOfPagesArr.length - 1);
+    const upperLimit = totalCountOfPagesArr.length - 1;
+    getPage(upperLimit);
   }, [getPage, totalCountOfPagesArr.length]);
-  // =====
 
   const getPage = React.useCallback(
     (pageNumber) => {
-      if (pageNumber === totalCountOfPagesArr.length) return;
+      const upperLimit = totalCountOfPagesArr.length;
+      if (pageNumber === upperLimit) return;
       if (pageNumber === 0) return;
       setPresentPage(pageNumber);
     },
     [totalCountOfPagesArr.length]
   );
 
-  // =====
   const getNextTenPages = React.useCallback(() => {
-    if (presentPage + buttonsLimit >= totalCountOfPagesArr.length) {
+    const upperLimit = totalCountOfPagesArr.length;
+    if (presentPage + buttonsLimit >= upperLimit) {
       getLastPage();
     } else {
       getPage(presentPage + buttonsLimit);
@@ -56,10 +57,6 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
       getPage(presentPage - buttonsLimit);
     }
   }, [buttonsLimit, getFirstPage, getPage, presentPage]);
-  // =====
-
-  const forward = true;
-  const backward = false;
 
   React.useEffect(() => {
     const firstPage = 1;
@@ -68,9 +65,9 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     const sliceOptionsBackward = [presentPage - buttonsLimit + 1, presentPage + 1];
     const sliceOptionsTheEnd = [lastPage - buttonsLimit, lastPage];
     const sliceOptionsTheStart = [firstPage, firstPage + buttonsLimit];
-    
+
     let currentSliceOptions = sliceOptionsForward;
-    
+
     if (direction === forward) currentSliceOptions = sliceOptionsForward;
     if (direction === backward) currentSliceOptions = sliceOptionsBackward;
     if (currentPagesArr.includes(presentPage)) return;
@@ -108,7 +105,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
     setCurrentPagesArr(countOfPagesList.slice(pageToSwitchOn, pageToSwitchOn + buttonsLimit));
 
     setPresentPage(pageToSwitchOn);
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [total, buttonsLimit, itemsLimit]);
 
