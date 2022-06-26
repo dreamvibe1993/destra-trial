@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
 
 export const usePagination = ({ buttonsLimit, itemsLimit }) => {
@@ -6,132 +5,89 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
   const [totalCountOfPagesArr, setTotalCountOfPagesArr] = React.useState([]);
   const [currentPagesArr, setCurrentPagesArr] = React.useState([]);
   const [total, setTotal] = React.useState(0);
-
-  const checkHigherBoundary = React.useCallback(() => {
-    const upperLimit = totalCountOfPagesArr.length;
-    let start = presentPage;
-    let end = presentPage + buttonsLimit;
-    const overflow =
-      start > upperLimit - buttonsLimit ||
-      end >= upperLimit ||
-      end >= upperLimit + buttonsLimit;
-    if (overflow) {
-      start = upperLimit - buttonsLimit;
-      end = upperLimit;
-    }
-    return {
-      start,
-      end,
-      overflow,
-    };
-  }, [totalCountOfPagesArr, presentPage, buttonsLimit]);
-
-  const checkLowerBoundary = React.useCallback(() => {
-    let start = presentPage - buttonsLimit;
-    let end = presentPage;
-    const lackness = start < 1 || end < 1;
-    if (lackness) {
-      start = 1;
-      end = buttonsLimit + 1;
-    }
-    return {
-      start,
-      end,
-      lackness,
-    };
-  }, [presentPage, buttonsLimit]);
+  const [direction, setDirection] = React.useState(true);
 
   // =====
   const getNextPage = React.useCallback(() => {
-    const { start, end } = checkHigherBoundary();
     let pageToSwitchOn = presentPage + 1;
-    const lastCurrentPagesArrItem = currentPagesArr[currentPagesArr.length - 1];
-    if (pageToSwitchOn > lastCurrentPagesArrItem) {
-      // Must stop.
-      setCurrentPagesArr(totalCountOfPagesArr.slice(start, end));
-      setPresentPage(pageToSwitchOn - 1);
-      return;
-    }
-    if (!currentPagesArr.includes(pageToSwitchOn)) {
-      setPresentPage(currentPagesArr[0]);
-      return;
-    }
-    setPresentPage(pageToSwitchOn);
-  }, [presentPage, totalCountOfPagesArr, currentPagesArr]);
+    getPage(pageToSwitchOn);
+    setDirection(true);
+  }, [getPage, presentPage]);
 
   const getPreviousPage = React.useCallback(() => {
-    if (presentPage === 1) return;
     let pageToSwitchOn = presentPage - 1;
-    const { start, end, overflow } = checkHigherBoundary();
-    if (!currentPagesArr.includes(pageToSwitchOn)) {
-      setCurrentPagesArr(
-        totalCountOfPagesArr.slice(
-          pageToSwitchOn,
-          pageToSwitchOn + buttonsLimit
-        )
-      );
-      setPresentPage(pageToSwitchOn);
-      return;
-    }
-    if (overflow) {
-      // Buttons array shall remain untouched.
-      setCurrentPagesArr(totalCountOfPagesArr.slice(start, end));
-      setPresentPage(pageToSwitchOn);
-      return;
-    }
-    setPresentPage(pageToSwitchOn);
-  }, [presentPage, totalCountOfPagesArr]);
+    getPage(pageToSwitchOn);
+    setDirection(false);
+  }, [getPage, presentPage]);
   // =====
 
   // =====
   const getFirstPage = React.useCallback(() => {
-    setCurrentPagesArr(totalCountOfPagesArr.slice(1, buttonsLimit + 1));
-    setPresentPage(1);
-  }, [totalCountOfPagesArr]);
+    getPage(1);
+  }, [getPage]);
 
   const getLastPage = React.useCallback(() => {
-    setPresentPage(totalCountOfPagesArr.length - 1);
-    setCurrentPagesArr(
-      totalCountOfPagesArr.slice(
-        totalCountOfPagesArr.length - buttonsLimit,
-        totalCountOfPagesArr.length
-      )
-    );
-  }, [totalCountOfPagesArr]);
+    getPage(totalCountOfPagesArr.length - 1);
+  }, [getPage, totalCountOfPagesArr.length]);
   // =====
 
   const getPage = React.useCallback(
     (pageNumber) => {
+      if (pageNumber === totalCountOfPagesArr.length) return;
+      if (pageNumber === 0) return;
       setPresentPage(pageNumber);
     },
-    [totalCountOfPagesArr]
+    [totalCountOfPagesArr.length]
   );
 
-  // ===== 
+  // =====
   const getNextTenPages = React.useCallback(() => {
-    const { start, end } = checkHigherBoundary();
-    const upperLimit = totalCountOfPagesArr.length;
-    if (end + buttonsLimit >= upperLimit) {
-      // In case of not full buttons batch (eg. 4 buttons while should be 8).
-      setPresentPage(upperLimit - 1);
-      setCurrentPagesArr(
-        totalCountOfPagesArr.slice(upperLimit - buttonsLimit, upperLimit)
-      );
-      return;
+    if (presentPage + buttonsLimit >= totalCountOfPagesArr.length) {
+      getLastPage();
+    } else {
+      getPage(presentPage + buttonsLimit);
     }
-    setCurrentPagesArr(
-      totalCountOfPagesArr.slice(start + buttonsLimit, end + buttonsLimit)
-    );
-    setPresentPage(end);
-  }, [presentPage, totalCountOfPagesArr]);
+  }, [
+    buttonsLimit,
+    getLastPage,
+    getPage,
+    presentPage,
+    totalCountOfPagesArr.length,
+  ]);
 
   const getPrevTenPages = React.useCallback(() => {
-    if (presentPage <= 1) return;
-    const { start, end } = checkLowerBoundary();
-    setCurrentPagesArr(totalCountOfPagesArr.slice(start, end));
-    setPresentPage(start);
-  }, [presentPage, totalCountOfPagesArr]);
+    if (presentPage - buttonsLimit <= 1) {
+      getFirstPage();
+    } else {
+      getPage(presentPage - buttonsLimit);
+    }
+  }, [buttonsLimit, getFirstPage, getPage, presentPage]);
   // =====
+
+  React.useEffect(() => {
+    const firstPage = 1;
+    const lastPage = totalCountOfPagesArr.length;
+    const sliceOptionsForward = [presentPage, presentPage + buttonsLimit];
+    const sliceOptionsBackward = [
+      presentPage - buttonsLimit + 1,
+      presentPage + 1,
+    ];
+    const sliceOptionsTheEnd = [lastPage - buttonsLimit, lastPage];
+    const sliceOptionsTheStart = [firstPage, firstPage + buttonsLimit];
+    let currentSliceOptions = sliceOptionsForward;
+    if (direction === true) currentSliceOptions = sliceOptionsForward;
+    if (direction === false) currentSliceOptions = sliceOptionsBackward;
+    if (direction === true && currentPagesArr.includes(presentPage)) return;
+    if (direction === false && currentPagesArr.includes(presentPage)) return;
+    if (direction === true && currentSliceOptions[1] >= lastPage)
+      currentSliceOptions = sliceOptionsTheEnd;
+    if (direction === false && currentSliceOptions[0] <= firstPage)
+      currentSliceOptions = sliceOptionsTheStart;
+    setCurrentPagesArr(
+      totalCountOfPagesArr.slice(currentSliceOptions[0], currentSliceOptions[1])
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buttonsLimit, direction, presentPage, totalCountOfPagesArr, itemsLimit]);
 
   React.useEffect(() => {
     if (!total || !buttonsLimit || !itemsLimit) {
@@ -164,6 +120,7 @@ export const usePagination = ({ buttonsLimit, itemsLimit }) => {
       countOfPagesList.slice(pageToSwitchOn, pageToSwitchOn + buttonsLimit)
     );
     setPresentPage(pageToSwitchOn);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [total, buttonsLimit, itemsLimit]);
 
   return {
